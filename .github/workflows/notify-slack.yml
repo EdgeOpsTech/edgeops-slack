@@ -35,6 +35,6 @@ jobs:
             -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
             -H "Content-type: application/json" \
             --data "{
-              "channel": "${CHANNEL}",
-              "text": "<!channel> 🚨 *${JOB_NAME}* failed in GitHub Actions!\n🔗 <${RUN_LINK}|Click to view logs>\n🧨 Error: ${ERROR_MESSAGE}"
+              \"channel\": \"${CHANNEL}\",
+              \"text\": \"<!channel> 🚨 *${JOB_NAME}* failed in GitHub Actions!\n🔗 <${RUN_LINK}|Click to view logs>\n🧨 Error: ${ERROR_MESSAGE}\"
             }"
