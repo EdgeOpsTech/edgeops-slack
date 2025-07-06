@@ -1,0 +1,41 @@
+name: Notify Slack on Failure
+
+on:
+  workflow_call:
+    inputs:
+      job_name:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+      error_message:
+        required: false
+        type: string
+      channel:
+        required: true
+        type: string
+    secrets:
+      SLACK_BOT_TOKEN:
+        required: true
+
+jobs:
+  notify:
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack Message via Bot
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          CHANNEL: ${{ inputs.channel }}
+          JOB_NAME: ${{ inputs.job_name }}
+          ERROR_MESSAGE: ${{ inputs.error_message || 'No specific error message' }}
+          RUN_LINK: https://github.com/${{ github.repository }}/actions/runs/${{ inputs.run_id }}
+        run: |
+          curl -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-type: application/json" \
+            --data "{
+              \"channel\": \"${CHANNEL}\",
+              \"text\": \"🚨 *${JOB_NAME}* failed in GitHub Actions!\n🔗 <${RUN_LINK}|Click to view logs>\n🧨 Error: ${ERROR_MESSAGE}\"
+            }"
