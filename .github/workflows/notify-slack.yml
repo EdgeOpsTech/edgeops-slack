@@ -21,7 +21,6 @@ on:
 
 jobs:
   notify:
-    if: ${{ failure() }} # ✅ Trigger only if the calling job fails
     runs-on: ubuntu-latest
     steps:
       - name: Send Slack Message via Bot
