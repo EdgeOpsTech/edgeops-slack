@@ -15,13 +15,17 @@ on:
       channel:
         required: true
         type: string
+      slack_enabled:
+        required: false
+        type: boolean
+        default: true
     secrets:
       SLACK_BOT_TOKEN:
-        required: true
+        required: false
 
 jobs:
   notify:
-    if: ${{ failure() }}
+    if: ${{ inputs.slack_enabled && failure() }}
     runs-on: ubuntu-latest
     steps:
       - name: Send Slack Message via Bot
@@ -32,6 +36,11 @@ jobs:
           ERROR_MESSAGE: ${{ inputs.error_message || 'No specific error message' }}
           RUN_LINK: https://github.com/${{ github.repository }}/actions/runs/${{ inputs.run_id }}
         run: |
+          if [ -z "$SLACK_BOT_TOKEN" ]; then
+            echo "⚠️ SLACK_BOT_TOKEN is not set. Skipping Slack notification."
+            exit 0
+          fi
+
           curl -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
             -H "Content-type: application/json" \
