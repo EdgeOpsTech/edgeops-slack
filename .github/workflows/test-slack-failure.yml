@@ -8,21 +8,18 @@ jobs:
     name: Simulate Failing Job
     runs-on: ubuntu-latest
     steps:
-      - name: This will fail
-        run: |
-          echo "Intentionally failing..."
-          exit 1
+      - name: Force failure
+        run: exit 1
 
   notify-slack:
     name: Notify Slack on Failure
     needs: [simulate-failure]
-    if: ${{ failure() }}
-    uses: ./.github/workflows/notify-slack.yml # Local call
+    if: ${{ failure() }} # ✅ Ensure it only runs if above job fails
+    uses: ./.github/workflows/notify-slack.yml
     with:
       job_name: "Simulated Job"
       run_id: ${{ github.run_id }}
       channel: "ci-cd-alerts"
       error_message: "Simulated job failed in test run"
-      slack_enabled: true
     secrets:
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
